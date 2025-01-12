@@ -32,19 +32,23 @@ interface AXI4_Lite_Master#(numeric type addrwidth, numeric type datawidth);
 	interface AXI4_Lite_Master_Fab#(addrwidth, datawidth) fab;
 	interface AXI4_Lite_Read_Server#(addrwidth, datawidth) read;
 	interface AXI4_Lite_Write_Server#(addrwidth, datawidth) write;
+	interface AXI4_Lite_Master_Rd#(addrwidth, datawidth) rd_master;
+	interface AXI4_Lite_Master_Wr#(addrwidth, datawidth) wr_master;
 endinterface
 
 
 module mkAXI4_Lite_Master#(Integer bufferSizeRead, Integer bufferSizeWrite)(AXI4_Lite_Master#(addrwidth, datawidth));
-	AXI4_Lite_Master_Rd#(addrwidth, datawidth) rd_master <- mkAXI4_Lite_Master_Rd(bufferSizeRead);
-	AXI4_Lite_Master_Wr#(addrwidth, datawidth) wr_master <- mkAXI4_Lite_Master_Wr(bufferSizeWrite);
+	AXI4_Lite_Master_Rd#(addrwidth, datawidth) rd_master_i <- mkAXI4_Lite_Master_Rd(bufferSizeRead);
+	AXI4_Lite_Master_Wr#(addrwidth, datawidth) wr_master_i <- mkAXI4_Lite_Master_Wr(bufferSizeWrite);
 
 	interface AXI4_Lite_Master_Fab fab;
-		interface rd = rd_master.fab;
-		interface wr = wr_master.fab;
+		interface rd = rd_master_i.fab;
+		interface wr = wr_master_i.fab;
 	endinterface
-	interface read = toGPServer(rd_master.request, rd_master.response);
-	interface write = toGPServer(wr_master.request, wr_master.response);
+	interface read = toGPServer(rd_master_i.request, rd_master_i.response);
+	interface write = toGPServer(wr_master_i.request, wr_master_i.response);
+	interface rd_master = rd_master_i;
+	interface wr_master = wr_master_i;
 endmodule
 
 /*
